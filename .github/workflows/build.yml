@@ -132,12 +132,20 @@ jobs:
           
           Write-Host "`n✅ All build artifacts verified successfully!"
 
-      - name: Upload Windows installer artifact
+      - name: Upload NSIS installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: file-viewer-windows-installer
           path: |
-            release/*.exe
+            release/*x64.exe
+          retention-days: 30
+
+      - name: Upload Portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-viewer-windows-portable
+          path: |
+            release/*portable.exe
           retention-days: 30
 
       - name: Upload build logs (if any)
@@ -166,14 +174,24 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Release version: v$VERSION"
 
-      - name: Download Windows installer artifact
+      - name: Download NSIS installer artifact
         uses: actions/download-artifact@v4
         with:
           name: file-viewer-windows-installer
-          path: release
+          path: release/installer
+
+      - name: Download Portable artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: file-viewer-windows-portable
+          path: release/portable
 
       - name: List downloaded files
-        run: ls -lh release/
+        run: |
+          echo "=== Installer ==="
+          ls -lh release/installer/
+          echo "=== Portable ==="
+          ls -lh release/portable/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -231,6 +249,7 @@ jobs:
             - Electron - Desktop application framework
             - Vue 3 + Vite - Frontend framework
           files: |
-            release/*.exe
+            release/installer/*.exe
+            release/portable/*.exe
           draft: false
           prerelease: false
