@@ -33,14 +33,17 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
-      "icon": "build/icon.ico",
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
@@ -54,52 +57,282 @@
       "artifactName": "${productName}-${version}-portable.exe"
     },
     "fileAssociations": [
-      { "ext": "pdf", "name": "PDF Document", "description": "PDF Document", "icon": "build/icons/pdf.ico", "role": "Viewer" },
-      { "ext": "doc", "name": "Word Document", "description": "Microsoft Word 97-2003 Document", "icon": "build/icons/doc.ico", "role": "Viewer" },
-      { "ext": "docx", "name": "Word Document", "description": "Microsoft Word Document", "icon": "build/icons/docx.ico", "role": "Viewer" },
-      { "ext": "xls", "name": "Excel Spreadsheet", "description": "Microsoft Excel 97-2003 Spreadsheet", "icon": "build/icons/xls.ico", "role": "Viewer" },
-      { "ext": "xlsx", "name": "Excel Spreadsheet", "description": "Microsoft Excel Spreadsheet", "icon": "build/icons/xlsx.ico", "role": "Viewer" },
-      { "ext": "ppt", "name": "PowerPoint Presentation", "description": "Microsoft PowerPoint 97-2003 Presentation", "icon": "build/icons/ppt.ico", "role": "Viewer" },
-      { "ext": "pptx", "name": "PowerPoint Presentation", "description": "Microsoft PowerPoint Presentation", "icon": "build/icons/pptx.ico", "role": "Viewer" },
-      { "ext": "ofd", "name": "OFD Document", "description": "Open Fixed-layout Document", "icon": "build/icons/ofd.ico", "role": "Viewer" },
-      { "ext": "dwg", "name": "CAD Drawing", "description": "AutoCAD Drawing", "icon": "build/icons/dwg.ico", "role": "Viewer" },
-      { "ext": "dxf", "name": "CAD Drawing", "description": "Drawing Exchange Format", "icon": "build/icons/dxf.ico", "role": "Viewer" },
-      { "ext": "dwf", "name": "CAD Drawing", "description": "Design Web Format", "icon": "build/icons/dwf.ico", "role": "Viewer" },
-      { "ext": "zip", "name": "Archive", "description": "ZIP Archive", "icon": "build/icons/zip.ico", "role": "Viewer" },
-      { "ext": "rar", "name": "Archive", "description": "RAR Archive", "icon": "build/icons/rar.ico", "role": "Viewer" },
-      { "ext": "7z", "name": "Archive", "description": "7-Zip Archive", "icon": "build/icons/7z.ico", "role": "Viewer" },
-      { "ext": "eml", "name": "Email", "description": "Email Message", "icon": "build/icons/eml.ico", "role": "Viewer" },
-      { "ext": "msg", "name": "Email", "description": "Outlook Email Message", "icon": "build/icons/msg.ico", "role": "Viewer" },
-      { "ext": "epub", "name": "eBook", "description": "EPUB eBook", "icon": "build/icons/epub.ico", "role": "Viewer" },
-      { "ext": "mobi", "name": "eBook", "description": "Mobipocket eBook", "icon": "build/icons/mobi.ico", "role": "Viewer" },
-      { "ext": "csv", "name": "Data File", "description": "Comma Separated Values", "icon": "build/icons/csv.ico", "role": "Viewer" },
-      { "ext": "json", "name": "Data File", "description": "JSON Data", "icon": "build/icons/json.ico", "role": "Viewer" },
-      { "ext": "xml", "name": "Data File", "description": "XML Data", "icon": "build/icons/xml.ico", "role": "Viewer" },
-      { "ext": "txt", "name": "Text File", "description": "Plain Text", "icon": "build/icons/txt.ico", "role": "Viewer" },
-      { "ext": "md", "name": "Text File", "description": "Markdown Document", "icon": "build/icons/md.ico", "role": "Viewer" },
-      { "ext": "rtf", "name": "Text File", "description": "Rich Text Format", "icon": "build/icons/rtf.ico", "role": "Viewer" },
-      { "ext": "odt", "name": "Document", "description": "OpenDocument Text", "icon": "build/icons/odt.ico", "role": "Viewer" },
-      { "ext": "ods", "name": "Spreadsheet", "description": "OpenDocument Spreadsheet", "icon": "build/icons/ods.ico", "role": "Viewer" },
-      { "ext": "odp", "name": "Presentation", "description": "OpenDocument Presentation", "icon": "build/icons/odp.ico", "role": "Viewer" },
-      { "ext": "stl", "name": "3D Model", "description": "STL 3D Model", "icon": "build/icons/stl.ico", "role": "Viewer" },
-      { "ext": "obj", "name": "3D Model", "description": "OBJ 3D Model", "icon": "build/icons/obj.ico", "role": "Viewer" },
-      { "ext": "gltf", "name": "3D Model", "description": "GL Transmission Format", "icon": "build/icons/gltf.ico", "role": "Viewer" },
-      { "ext": "glb", "name": "3D Model", "description": "Binary GL Transmission Format", "icon": "build/icons/glb.ico", "role": "Viewer" },
-      { "ext": "mp3", "name": "Audio", "description": "MP3 Audio", "icon": "build/icons/mp3.ico", "role": "Viewer" },
-      { "ext": "wav", "name": "Audio", "description": "WAV Audio", "icon": "build/icons/wav.ico", "role": "Viewer" },
-      { "ext": "flac", "name": "Audio", "description": "FLAC Audio", "icon": "build/icons/flac.ico", "role": "Viewer" },
-      { "ext": "mp4", "name": "Video", "description": "MP4 Video", "icon": "build/icons/mp4.ico", "role": "Viewer" },
-      { "ext": "webm", "name": "Video", "description": "WebM Video", "icon": "build/icons/webm.ico", "role": "Viewer" },
-      { "ext": "mkv", "name": "Video", "description": "Matroska Video", "icon": "build/icons/mkv.ico", "role": "Viewer" },
-      { "ext": "png", "name": "Image", "description": "PNG Image", "icon": "build/icons/png.ico", "role": "Viewer" },
-      { "ext": "jpg", "name": "Image", "description": "JPEG Image", "icon": "build/icons/jpg.ico", "role": "Viewer" },
-      { "ext": "jpeg", "name": "Image", "description": "JPEG Image", "icon": "build/icons/jpeg.ico", "role": "Viewer" },
-      { "ext": "gif", "name": "Image", "description": "GIF Image", "icon": "build/icons/gif.ico", "role": "Viewer" },
-      { "ext": "svg", "name": "Image", "description": "SVG Image", "icon": "build/icons/svg.ico", "role": "Viewer" },
-      { "ext": "webp", "name": "Image", "description": "WebP Image", "icon": "build/icons/webp.ico", "role": "Viewer" },
-      { "ext": "bmp", "name": "Image", "description": "BMP Image", "icon": "build/icons/bmp.ico", "role": "Viewer" },
-      { "ext": "tiff", "name": "Image", "description": "TIFF Image", "icon": "build/icons/tiff.ico", "role": "Viewer" },
-      { "ext": "ico", "name": "Image", "description": "Icon File", "icon": "build/icons/ico.ico", "role": "Viewer" }
+      {
+        "ext": "pdf",
+        "name": "PDF Document",
+        "description": "PDF Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": "doc",
+        "name": "Word Document",
+        "description": "Microsoft Word 97-2003 Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": "docx",
+        "name": "Word Document",
+        "description": "Microsoft Word Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": "xls",
+        "name": "Excel Spreadsheet",
+        "description": "Microsoft Excel 97-2003 Spreadsheet",
+        "role": "Viewer"
+      },
+      {
+        "ext": "xlsx",
+        "name": "Excel Spreadsheet",
+        "description": "Microsoft Excel Spreadsheet",
+        "role": "Viewer"
+      },
+      {
+        "ext": "ppt",
+        "name": "PowerPoint Presentation",
+        "description": "Microsoft PowerPoint 97-2003 Presentation",
+        "role": "Viewer"
+      },
+      {
+        "ext": "pptx",
+        "name": "PowerPoint Presentation",
+        "description": "Microsoft PowerPoint Presentation",
+        "role": "Viewer"
+      },
+      {
+        "ext": "ofd",
+        "name": "OFD Document",
+        "description": "Open Fixed-layout Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": "dwg",
+        "name": "CAD Drawing",
+        "description": "AutoCAD Drawing",
+        "role": "Viewer"
+      },
+      {
+        "ext": "dxf",
+        "name": "CAD Drawing",
+        "description": "Drawing Exchange Format",
+        "role": "Viewer"
+      },
+      {
+        "ext": "dwf",
+        "name": "CAD Drawing",
+        "description": "Design Web Format",
+        "role": "Viewer"
+      },
+      {
+        "ext": "zip",
+        "name": "Archive",
+        "description": "ZIP Archive",
+        "role": "Viewer"
+      },
+      {
+        "ext": "rar",
+        "name": "Archive",
+        "description": "RAR Archive",
+        "role": "Viewer"
+      },
+      {
+        "ext": "7z",
+        "name": "Archive",
+        "description": "7-Zip Archive",
+        "role": "Viewer"
+      },
+      {
+        "ext": "eml",
+        "name": "Email",
+        "description": "Email Message",
+        "role": "Viewer"
+      },
+      {
+        "ext": "msg",
+        "name": "Email",
+        "description": "Outlook Email Message",
+        "role": "Viewer"
+      },
+      {
+        "ext": "epub",
+        "name": "eBook",
+        "description": "EPUB eBook",
+        "role": "Viewer"
+      },
+      {
+        "ext": "mobi",
+        "name": "eBook",
+        "description": "Mobipocket eBook",
+        "role": "Viewer"
+      },
+      {
+        "ext": "csv",
+        "name": "Data File",
+        "description": "Comma Separated Values",
+        "role": "Viewer"
+      },
+      {
+        "ext": "json",
+        "name": "Data File",
+        "description": "JSON Data",
+        "role": "Viewer"
+      },
+      {
+        "ext": "xml",
+        "name": "Data File",
+        "description": "XML Data",
+        "role": "Viewer"
+      },
+      {
+        "ext": "txt",
+        "name": "Text File",
+        "description": "Plain Text",
+        "role": "Viewer"
+      },
+      {
+        "ext": "md",
+        "name": "Text File",
+        "description": "Markdown Document",
+        "role": "Viewer"
+      },
+      {
+        "ext": "rtf",
+        "name": "Text File",
+        "description": "Rich Text Format",
+        "role": "Viewer"
+      },
+      {
+        "ext": "odt",
+        "name": "Document",
+        "description": "OpenDocument Text",
+        "role": "Viewer"
+      },
+      {
+        "ext": "ods",
+        "name": "Spreadsheet",
+        "description": "OpenDocument Spreadsheet",
+        "role": "Viewer"
+      },
+      {
+        "ext": "odp",
+        "name": "Presentation",
+        "description": "OpenDocument Presentation",
+        "role": "Viewer"
+      },
+      {
+        "ext": "stl",
+        "name": "3D Model",
+        "description": "STL 3D Model",
+        "role": "Viewer"
+      },
+      {
+        "ext": "obj",
+        "name": "3D Model",
+        "description": "OBJ 3D Model",
+        "role": "Viewer"
+      },
+      {
+        "ext": "gltf",
+        "name": "3D Model",
+        "description": "GL Transmission Format",
+        "role": "Viewer"
+      },
+      {
+        "ext": "glb",
+        "name": "3D Model",
+        "description": "Binary GL Transmission Format",
+        "role": "Viewer"
+      },
+      {
+        "ext": "mp3",
+        "name": "Audio",
+        "description": "MP3 Audio",
+        "role": "Viewer"
+      },
+      {
+        "ext": "wav",
+        "name": "Audio",
+        "description": "WAV Audio",
+        "role": "Viewer"
+      },
+      {
+        "ext": "flac",
+        "name": "Audio",
+        "description": "FLAC Audio",
+        "role": "Viewer"
+      },
+      {
+        "ext": "mp4",
+        "name": "Video",
+        "description": "MP4 Video",
+        "role": "Viewer"
+      },
+      {
+        "ext": "webm",
+        "name": "Video",
+        "description": "WebM Video",
+        "role": "Viewer"
+      },
+      {
+        "ext": "mkv",
+        "name": "Video",
+        "description": "Matroska Video",
+        "role": "Viewer"
+      },
+      {
+        "ext": "png",
+        "name": "Image",
+        "description": "PNG Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "jpg",
+        "name": "Image",
+        "description": "JPEG Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "jpeg",
+        "name": "Image",
+        "description": "JPEG Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "gif",
+        "name": "Image",
+        "description": "GIF Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "svg",
+        "name": "Image",
+        "description": "SVG Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "webp",
+        "name": "Image",
+        "description": "WebP Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "bmp",
+        "name": "Image",
+        "description": "BMP Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "tiff",
+        "name": "Image",
+        "description": "TIFF Image",
+        "role": "Viewer"
+      },
+      {
+        "ext": "ico",
+        "name": "Image",
+        "description": "Icon File",
+        "role": "Viewer"
+      }
     ]
   }
 }
