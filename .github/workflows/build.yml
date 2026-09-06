@@ -26,6 +26,10 @@ env:
   NODE_OPTIONS: '--max-old-space-size=8192'
   STANDALONE_REPO: 'sixiang-world/file-viewer-standalone'
 
+# 关键：授予 GITHUB_TOKEN 创建 Release 的权限
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     name: Build Windows Installer
@@ -118,6 +122,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository (to read package.json version)
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: v$VERSION"
+
       - name: Download Windows installer artifact
         uses: actions/download-artifact@v4
         with:
@@ -130,10 +144,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: File Viewer Desktop v${{ github.run_number }}
+          tag_name: v${{ steps.version.outputs.version }}
+          name: File Viewer Desktop v${{ steps.version.outputs.version }}
           body: |
-            ## File Viewer Desktop - Release v${{ github.run_number }}
+            ## File Viewer Desktop - Release v${{ steps.version.outputs.version }}
 
             Offline-first file viewer for Windows, supporting 50+ formats including Office, PDF, CAD, archives, email, 3D, media and more.
 
