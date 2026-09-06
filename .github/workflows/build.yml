@@ -84,7 +84,7 @@ jobs:
         run: npm ci
 
       - name: Build Windows installer (NSIS + Portable)
-        run: npx electron-builder --win nsis portable --x64
+        run: npx electron-builder --win nsis,portable --x64
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
