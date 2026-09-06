@@ -1,0 +1,188 @@
+name: Build Desktop App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      standalone_ref:
+        description: 'file-viewer-standalone branch/tag/commit to build'
+        required: false
+        default: 'main'
+        type: string
+      create_release:
+        description: 'Create GitHub Release with installers'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  NODE_VERSION: '20'
+  NODE_OPTIONS: '--max-old-space-size=8192'
+  STANDALONE_REPO: 'sixiang-world/file-viewer-standalone'
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout desktop repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Checkout standalone repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.STANDALONE_REPO }}
+          ref: ${{ github.event.inputs.standalone_ref || 'main' }}
+          path: standalone-src
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install standalone dependencies
+        working-directory: standalone-src
+        run: npm ci
+        env:
+          NODE_OPTIONS: ${{ env.NODE_OPTIONS }}
+
+      - name: Build standalone web version
+        working-directory: standalone-src
+        run: npm run build
+        env:
+          NODE_OPTIONS: ${{ env.NODE_OPTIONS }}
+
+      - name: Copy web build to desktop project
+        run: |
+          if (Test-Path "web") { Remove-Item -Recurse -Force "web" }
+          New-Item -ItemType Directory -Path "web" | Out-Null
+          Copy-Item -Recurse -Force "standalone-src\dist\*" "web\"
+          Write-Host "Web build copied successfully"
+          Get-ChildItem "web" -Name
+
+      - name: Verify web build
+        run: |
+          if (-not (Test-Path "web\index.html")) {
+            Write-Error "ERROR: web\index.html not found!"
+            exit 1
+          }
+          Write-Host "Web build verified: web\index.html exists"
+
+      - name: Install desktop dependencies
+        run: npm ci
+
+      - name: Build Windows installer (NSIS + Portable)
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: List build output
+        run: |
+          Write-Host "=== Release directory ==="
+          Get-ChildItem "release" -Recurse -Name
+          Write-Host "=== File sizes ==="
+          Get-ChildItem "release" -Recurse -File | ForEach-Object {
+            Write-Host "$($_.Name) - $([math]::Round($_.Length / 1MB, 2)) MB"
+          }
+
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-viewer-windows-installer
+          path: |
+            release/*.exe
+          retention-days: 30
+
+      - name: Upload build logs (if any)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            **/*.log
+          retention-days: 7
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-windows
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Windows installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: file-viewer-windows-installer
+          path: release
+
+      - name: List downloaded files
+        run: ls -lh release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: File Viewer Desktop v${{ github.run_number }}
+          body: |
+            ## File Viewer Desktop - Release v${{ github.run_number }}
+
+            Offline-first file viewer for Windows, supporting 50+ formats including Office, PDF, CAD, archives, email, 3D, media and more.
+
+            ### Installation
+
+            **Option 1: Installer (Recommended)**
+            - Download `File Viewer-*-x64.exe`
+            - Run the installer and follow the instructions
+            - File associations will be configured automatically
+
+            **Option 2: Portable**
+            - Download `File Viewer-*-portable.exe`
+            - No installation required, just run it
+
+            ### Usage
+
+            1. **Double-click EXE** - Open the app, then drag & drop files
+            2. **Right-click → Open with** - Open files directly from Explorer
+            3. **Drag to EXE** - Drag files onto the EXE icon to open
+
+            ### Supported Formats
+
+            | Category | Formats |
+            |----------|---------|
+            | Documents | PDF, DOC, DOCX, ODT, RTF, TXT, MD, OFD, EPUB |
+            | Spreadsheets | XLS, XLSX, CSV, ODS |
+            | Presentations | PPT, PPTX, ODP |
+            | CAD | DWG, DXF, DWF, DWFx |
+            | Archives | ZIP, RAR, 7Z, TAR, GZ |
+            | Email | EML, MSG |
+            | Images | PNG, JPG, GIF, SVG, WebP, BMP, TIFF |
+            | Video | MP4, WebM, MKV, AVI, MOV |
+            | Audio | MP3, WAV, FLAC, OGG, AAC |
+            | 3D Models | STL, OBJ, glTF, GLB, FBX |
+            | Data | JSON, XML, YAML, CSV |
+
+            ### Privacy
+
+            - 100% offline - all file parsing happens locally
+            - No server-side conversion
+            - Files never leave your computer
+            - Suitable for private and internal network environments
+
+            ### Built With
+
+            - [file-viewer](https://github.com/flyfish-dev/file-viewer) - Browser-native file preview engine
+            - Electron - Desktop application framework
+            - Vue 3 + Vite - Frontend framework
+          files: |
+            release/*.exe
+          draft: false
+          prerelease: false
