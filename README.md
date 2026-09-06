@@ -4,6 +4,29 @@
 
 [![Build Desktop App](https://github.com/sixiang-world/file-viewer-desktop/actions/workflows/build.yml/badge.svg)](https://github.com/sixiang-world/file-viewer-desktop/actions/workflows/build.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Electron](https://img.shields.io/badge/Electron-31-47848F)](https://www.electronjs.org/)
+[![Windows](https://img.shields.io/badge/Windows-10/11-0078D6)](https://www.microsoft.com/windows)
+
+---
+
+## 📑 目录
+
+- [🔗 仓库关系说明](#-仓库关系说明)
+- [✨ 特性](#-特性)
+- [📋 支持的文件格式](#-支持的文件格式)
+- [🚀 快速开始](#-快速开始)
+- [📖 使用方式](#-使用方式)
+- [💻 开发指南](#-开发指南)
+- [⚙️ 配置说明](#️-配置说明)
+- [🔧 GitHub Actions 自动打包](#-github-actions-自动打包)
+- [📁 项目结构](#-项目结构)
+- [🏗️ 技术架构](#️-技术架构)
+- [🔒 隐私与安全](#-隐私与安全)
+- [🐛 故障排除](#-故障排除)
+- [❓ 常见问题](#-常见问题)
+- [🤝 贡献指南](#-贡献指南)
+- [📄 许可证](#-许可证)
+- [🙏 致谢](#-致谢)
 
 ---
 
@@ -55,6 +78,8 @@
 - **单实例运行**：确保只有一个应用实例，第二次打开文件时激活已有窗口
 - **安全隔离**：Context Isolation + 自定义协议，渲染进程无法直接访问 Node.js API
 - **安装版 + 便携版**：提供 NSIS 安装包和免安装便携版
+- **自动更新就绪**：electron-builder 支持自动更新配置（需额外配置更新服务器）
+- **多语言界面**：继承网页版的多语言支持（中文/英文/日文/德文）
 
 ---
 
@@ -150,6 +175,130 @@ npm run build:win
 ### 运行中拖拽
 应用运行中，也可以直接将文件拖放到窗口内打开。
 
+### 查看器功能
+- **缩放**：工具栏 +/- 按钮，或鼠标滚轮
+- **适应页面/宽度**：工具栏按钮
+- **搜索**：搜索按钮，支持文档内搜索
+- **下载**：下载原始文件
+- **打印**：打印当前文档
+
+---
+
+## 💻 开发指南
+
+### 本地开发调试
+
+```bash
+# 1. 克隆两个仓库（放在同一目录下）
+git clone https://github.com/sixiang-world/file-viewer-standalone.git
+git clone https://github.com/sixiang-world/file-viewer-desktop.git
+
+# 2. 构建网页版（首次需要，后续修改网页端需要重新构建）
+cd file-viewer-standalone
+npm install
+set NODE_OPTIONS=--max-old-space-size=8192
+npm run build
+xcopy /E /I dist ..\file-viewer-desktop\web
+
+# 3. 启动桌面版开发模式
+cd ..\file-viewer-desktop
+npm install
+npm start
+```
+
+### 项目脚本
+
+| 命令 | 说明 |
+|------|------|
+| `npm start` | 启动 Electron 开发模式 |
+| `npm run build:win` | 打包 Windows EXE（安装版 + 便携版） |
+| `npm run build:win-portable` | 仅打包便携版 |
+| `npm run build:all` | 构建网页版 + 打包 EXE（需要上游 monorepo） |
+| `node scripts/generate-icons.js` | 生成应用图标和文件类型图标 |
+
+### 开发调试技巧
+
+1. **开发者工具**：在 Electron 窗口中按 `Ctrl+Shift+I` 打开 DevTools
+2. **主进程调试**：使用 `electron --inspect .` 启动，然后在 Chrome 中打开 `chrome://inspect`
+3. **网页端热更新**：修改网页端代码后，需要重新构建 standalone 并复制到 web/ 目录
+4. **文件关联测试**：安装版才能测试文件关联，开发模式下需要手动通过命令行参数传递文件路径
+5. **日志查看**：主进程日志在控制台输出，渲染进程日志在 DevTools Console 中
+
+### 测试文件打开功能
+
+```bash
+# 开发模式下通过命令行参数打开文件
+npx electron . "C:\path\to\your\file.pdf"
+```
+
+---
+
+## ⚙️ 配置说明
+
+### package.json 关键配置
+
+#### 应用基本信息
+```json
+{
+  "name": "file-viewer-desktop",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "appId": "com.fileviewer.desktop",
+  "productName": "File Viewer"
+}
+```
+
+#### electron-builder 构建配置
+```json
+{
+  "build": {
+    "appId": "com.fileviewer.desktop",
+    "productName": "File Viewer",
+    "directories": { "output": "release" },
+    "files": ["electron/**/*", "web/**/*", "package.json"],
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
+```
+
+#### 文件关联配置
+在 `build.fileAssociations` 数组中配置，每个格式包含：
+- `ext`：文件扩展名
+- `name`：文件类型名称
+- `description`：文件类型描述
+- `icon`：关联图标路径
+- `role`：应用角色（Viewer/Editor）
+
+当前已配置 50+ 种格式的文件关联。
+
+### 主进程配置（electron/main.js）
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| 窗口宽度 | 1400 | 主窗口初始宽度 |
+| 窗口高度 | 900 | 主窗口初始高度 |
+| 最小宽度 | 800 | 主窗口最小宽度 |
+| 最小高度 | 600 | 主窗口最小高度 |
+| Context Isolation | true | 上下文隔离（安全） |
+| Node Integration | false | 禁用 Node.js 集成（安全） |
+| 单实例锁 | 启用 | 确保只有一个应用实例 |
+
+### 环境变量
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `NODE_OPTIONS` | Node.js 内存限制 | 无（构建时建议设置 8192） |
+| `ELECTRON_DISABLE_SECURITY_WARNINGS` | 禁用安全警告 | false（开发时可设为 true） |
+
 ---
 
 ## 🔧 GitHub Actions 自动打包
@@ -176,10 +325,17 @@ npm run build:win
 - **可选 Release**：手动触发时可选择创建 GitHub Release，包含安装包下载链接
 
 ### 手动触发参数
+
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `standalone_ref` | standalone 仓库的分支/标签/commit | `main` |
 | `create_release` | 是否创建 GitHub Release | `false` |
+
+### 构建耗时说明
+- 总耗时：约 10-15 分钟
+- standalone 构建：约 5-8 分钟（最耗时）
+- Electron 打包：约 3-5 分钟
+- 下载依赖：约 2-3 分钟
 
 ---
 
@@ -203,10 +359,13 @@ file-viewer-desktop/
 │                                  #  - 文件打开事件监听
 ├── web/                           # 网页构建产物（从 standalone 复制，git 忽略）
 ├── build/                         # 构建资源（图标等）
+│   ├── icon.ico                   # 应用图标
+│   └── icons/                     # 文件类型图标
 ├── scripts/
 │   ├── build-web.js               # 网页版构建脚本（从上游 monorepo）
 │   └── generate-icons.js          # 应用图标和文件类型图标生成
 ├── package.json                   # electron-builder 配置 + 50+ 格式文件关联
+├── LICENSE                        # Apache-2.0 许可证
 └── README.md                      # 本文件
 ```
 
@@ -269,6 +428,31 @@ window.fileViewerDesktop = {
 - **应用图标**：`build/icon.ico`
 - **文件类型图标**：`build/icons/*.ico`
 
+### 数据流
+
+```
+用户操作（文件关联/拖拽/双击）
+    │
+    ▼
+Windows 系统传递文件路径（命令行参数）
+    │
+    ▼
+Electron 主进程（main.js）
+    │
+    ├──► 解析文件路径
+    ├──► 单实例检查
+    └──► IPC 发送文件信息
+         │
+         ▼
+    预加载脚本（preload.js）
+         │
+         ▼
+    渲染进程（web/index.html）
+         │
+         ├──► 调用 readFileAsFile() 读取文件
+         └──► <file-viewer> 组件渲染
+```
+
 ---
 
 ## 🔒 隐私与安全
@@ -279,6 +463,75 @@ window.fileViewerDesktop = {
 - **安全文件访问**：通过自定义协议和 IPC 受控地访问本地文件，防止路径遍历
 - **内网友好**：可完全离线使用，无需网络连接
 - **无遥测**：不收集任何使用数据或用户信息
+- **无自动更新**：默认不启用自动更新，避免意外的网络请求
+- **沙箱就绪**：代码结构支持启用 Electron Sandbox（需额外配置）
+
+---
+
+## 🐛 故障排除
+
+### 构建时内存溢出（JavaScript heap out of memory）
+
+**症状**：构建 standalone 时报错 `FATAL ERROR: Ineffective mark-compacts near heap limit`
+
+**解决方案**：
+```bash
+# 在构建 standalone 之前设置
+set NODE_OPTIONS=--max-old-space-size=8192
+```
+
+### electron-builder 打包失败
+
+**症状**：打包时报错或卡住
+
+**可能原因和解决方案**：
+1. **网络问题**：electron-builder 需要下载 Electron 二进制文件，确保网络通畅
+2. **权限问题**：以管理员身份运行命令行
+3. **杀毒软件拦截**：暂时关闭杀毒软件的实时扫描
+4. **路径过长**：将项目放在较短的路径下（如 `C:\dev\file-viewer-desktop`）
+
+### 应用启动白屏
+
+**症状**：应用启动后窗口空白
+
+**排查步骤**：
+1. 按 `Ctrl+Shift+I` 打开 DevTools，查看 Console 错误
+2. 检查 `web/index.html` 是否存在
+3. 检查控制台是否有文件加载错误
+4. 确认 `web/` 目录包含完整的构建产物
+
+### 文件关联不生效
+
+**症状**：安装后双击文件没有用 File Viewer 打开
+
+**解决方案**：
+1. 右键文件 → "打开方式" → "选择其他应用"
+2. 找到 File Viewer，勾选"始终使用此应用打开"
+3. 或在 Windows 设置 → 应用 → 默认应用中配置
+4. 重新运行安装程序，确保安装过程中没有被安全软件拦截
+
+### 拖拽到 EXE 没反应
+
+**症状**：将文件拖放到 EXE 图标上没有反应
+
+**可能原因**：
+1. EXE 是快捷方式，不是原始 EXE 文件
+2. 文件类型不被支持
+3. 安全软件阻止了拖拽操作
+
+**解决方案**：
+1. 确保拖放到原始 EXE 文件（不是快捷方式）
+2. 尝试双击 EXE 启动后，再将文件拖放到窗口内
+3. 暂时关闭安全软件测试
+
+### 应用无法关闭（后台进程残留）
+
+**症状**：关闭窗口后，任务管理器中仍有 Electron 进程
+
+**解决方案**：
+1. 在任务管理器中手动结束所有 File Viewer 进程
+2. 检查是否有文件正在加载中，等待加载完成
+3. 这是 Electron 的已知问题，通常不影响使用
 
 ---
 
@@ -323,11 +576,100 @@ A: 当前只配置了 Windows 打包。如需 macOS/Linux 版本：
 2. 在对应系统上运行 `electron-builder`
 3. 代码本身是跨平台的，主进程逻辑兼容 macOS/Linux
 
+### Q: 应用会自动更新吗？
+
+A: 默认不启用自动更新。如需启用：
+1. 配置 electron-builder 的 `publish` 选项
+2. 部署一个更新服务器（或使用 GitHub Releases）
+3. 在主进程中添加自动更新逻辑
+
+### Q: 支持命令行打开文件吗？
+
+A: 支持。在命令行中运行：
+```bash
+"File Viewer.exe" "C:\path\to\file.pdf"
+```
+
+### Q: 如何查看应用版本？
+
+A: 
+1. 安装版：控制面板 → 程序和功能 → 查看 File Viewer 版本
+2. 便携版：右键 EXE → 属性 → 详细信息 → 文件版本
+3. 或在应用中按 `Ctrl+Shift+I` 打开 DevTools，在 Console 中输入 `navigator.userAgent` 查看 Electron 版本
+
+---
+
+## 🤝 贡献指南
+
+欢迎贡献代码！请遵循以下步骤：
+
+### 提交 Issue
+- 使用 [Issues](https://github.com/sixiang-world/file-viewer-desktop/issues) 页面提交 bug 报告或功能请求
+- 提交时请包含：复现步骤、预期行为、实际行为、环境信息（Windows 版本、应用版本）
+
+### 提交 Pull Request
+1. Fork 本仓库
+2. 创建特性分支：`git checkout -b feature/your-feature`
+3. 提交更改：`git commit -m 'Add some feature'`
+4. 推送到分支：`git push origin feature/your-feature`
+5. 创建 Pull Request
+
+### 代码规范
+- 使用 JavaScript（主进程）和 TypeScript（渲染进程，在 standalone 仓库）
+- 遵循 Electron 安全最佳实践
+- 保持代码简洁，添加必要的注释
+- 提交前确保 `npm start` 能正常启动应用
+
+### 开发环境设置
+```bash
+# 1. Fork 并克隆两个仓库
+git clone https://github.com/your-username/file-viewer-standalone.git
+git clone https://github.com/your-username/file-viewer-desktop.git
+
+# 2. 构建网页版
+cd file-viewer-standalone
+npm install
+set NODE_OPTIONS=--max-old-space-size=8192
+npm run build
+xcopy /E /I dist ..\file-viewer-desktop\web
+
+# 3. 启动桌面版开发模式
+cd ..\file-viewer-desktop
+npm install
+npm start
+```
+
+### 测试清单
+提交 PR 前请确保测试以下功能：
+- [ ] 双击 EXE 能正常启动
+- [ ] 拖拽文件到窗口能正常打开
+- [ ] 点击上传按钮能正常选择文件
+- [ ] 命令行参数能正常打开文件
+- [ ] 单实例锁正常工作（第二次启动会激活已有窗口）
+- [ ] 应用关闭后没有残留进程
+- [ ] 至少测试 3 种不同格式的文件
+
 ---
 
 ## 📄 许可证
 
 本项目基于 [Apache-2.0](LICENSE) 许可证，与上游 file-viewer 保持一致。
+
+```
+Copyright 2024 File Viewer Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
 
 ---
 
@@ -337,3 +679,9 @@ A: 当前只配置了 Windows 打包。如需 macOS/Linux 版本：
 - [file-viewer-standalone](https://github.com/sixiang-world/file-viewer-standalone) - 姊妹仓库，网页版构建
 - [Electron](https://www.electronjs.org/) - 桌面应用框架
 - [electron-builder](https://www.electron.build/) - 安装包打包工具
+- [Vue.js](https://vuejs.org/) - 渐进式 JavaScript 框架
+- [Vite](https://vitejs.dev/) - 下一代前端构建工具
+
+---
+
+**如果这个项目对你有帮助，请给个 ⭐ Star 支持！**
