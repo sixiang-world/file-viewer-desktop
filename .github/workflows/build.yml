@@ -84,26 +84,60 @@ jobs:
         run: npm ci
 
       - name: Build Windows installer (NSIS + Portable)
-        run: npm run build:win
+        run: npx electron-builder --win nsis portable --x64
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: 'true'
 
       - name: List build output
         run: |
-          Write-Host "=== Release directory ==="
-          Get-ChildItem "release" -Recurse -Name
-          Write-Host "=== File sizes ==="
-          Get-ChildItem "release" -Recurse -File | ForEach-Object {
-            Write-Host "$($_.Name) - $([math]::Round($_.Length / 1MB, 2)) MB"
+          Write-Host "=== Release directory (all files) ==="
+          Get-ChildItem "release" -Recurse | Format-Table Name, Length, LastWriteTime -AutoSize
+          Write-Host "`n=== EXE files ==="
+          $exeFiles = Get-ChildItem "release" -Filter "*.exe" -Recurse
+          if ($exeFiles) {
+            $exeFiles | ForEach-Object {
+              Write-Host "  FOUND: $($_.FullName) - $([math]::Round($_.Length / 1MB, 2)) MB"
+            }
+          } else {
+            Write-Host "  WARNING: No EXE files found!"
           }
+          Write-Host "`n=== Total EXE count: $($exeFiles.Count) ==="
+
+      - name: Verify build artifacts
+        run: |
+          $nsisExe = Get-ChildItem "release" -Filter "*x64.exe" -Recurse | Select-Object -First 1
+          $portableExe = Get-ChildItem "release" -Filter "*portable.exe" -Recurse | Select-Object -First 1
+          
+          $errors = @()
+          
+          if (-not $nsisExe) {
+            $errors += "NSIS installer (x64.exe) NOT found!"
+          } else {
+            Write-Host "✅ NSIS installer found: $($nsisExe.Name) - $([math]::Round($nsisExe.Length / 1MB, 2)) MB"
+          }
+          
+          if (-not $portableExe) {
+            $errors += "Portable exe NOT found!"
+          } else {
+            Write-Host "✅ Portable exe found: $($portableExe.Name) - $([math]::Round($portableExe.Length / 1MB, 2)) MB"
+          }
+          
+          if ($errors.Count -gt 0) {
+            Write-Host "`n❌ BUILD VERIFICATION FAILED:"
+            $errors | ForEach-Object { Write-Host "  - $_" }
+            exit 1
+          }
+          
+          Write-Host "`n✅ All build artifacts verified successfully!"
 
       - name: Upload Windows installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: file-viewer-windows-installer
           path: |
-            release/*.exe
+            release/**/*.exe
           retention-days: 30
 
       - name: Upload build logs (if any)
