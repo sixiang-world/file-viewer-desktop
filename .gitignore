@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+web/
+release/
+dist/
+
+# Icons (generated)
+build/*.ico
+build/*.png
+build/icons/*.ico
+build/icons/*.png
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
